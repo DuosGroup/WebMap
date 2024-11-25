@@ -107,7 +107,11 @@ function initMap() {
 
 		marker.addListener('click', () => {
 			infowindow.open(map, marker);
-			window.parent.postMessage(action, '*'); // Send message to parent (3DVista webframe)
+			 window.parent.postMessage({
+    				type: 'MARKER_CLICK', // For clarity about the message's purpose
+    				markerData: currMarker[0],
+   				 markerPosition: marker.getPosition().toJSON()
+    		}, '*');
 		});
 
 
