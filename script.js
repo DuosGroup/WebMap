@@ -65,9 +65,10 @@ function initMap() {
       // Update the URL hash when the marker is clicked
       const tag = currMarker[6]; // This is the tag (e.g., 'Yoshi')
       window.location.hash = 'hide-components-tags=' + tag;
-
+      // Send the tag to the parent window to modify its header (3DVista)
+      window.parent.postMessage({ action: 'update-header', hash: hashValue }, '*');
       // Send the action to parent (if needed for your specific functionality)
-      window.parent.postMessage(tag, '*'); // Send the tag as message to the parent (3DVista webframe)
+      
     });
   }
 }
