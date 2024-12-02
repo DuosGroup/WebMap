@@ -1,74 +1,86 @@
-const _center = { lat: 34.66767774804736, lng: 135.43076145097373 }; // Your center point
+const _center = { lat: -27.14727549642697, lng: -48.58708161563171 }; // Your center point
+
+// -27.14727549642697, -48.58708161563171
 
 const BOUNDS = {
-  north: _center.lat + 0.004,
-  south: _center.lat - 0.004,
-  east: _center.lng + 0.006,
-  west: _center.lng - 0.005,
+	north: _center.lat + 0.004,
+	south: _center.lat - 0.004,
+	east: _center.lng + 0.006,
+	west: _center.lng - 0.008,
 };
 
 function initMap() {
-  // Update MAP_ID with custom map ID
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: _center,
-    restriction: {
-      latLngBounds: BOUNDS,
-      strictBounds: false,
-    },
-    zoom: 18,
-    mapTypeId: "satellite",
-    mapId: 'MAP_ID',
-    mapTypeControl: false,
-    fullscreenControl: false,
-    streetViewControl: false,
-    minZoom: 18, // Minimum zoom level
-    maxZoom: 20, // Maximum zoom level
-  });
+	// Update MAP_ID with custom map ID
+	map = new google.maps.Map(document.getElementById('map'), {
+		center: _center,
+		restriction: {
+			latLngBounds: BOUNDS,
+			strictBounds: false,
+		},
+		zoom: 17,
+		mapTypeId: "satellite",
+		mapId: 'MAP_ID',
+		mapTypeControl: false,
+		fullscreenControl: false,
+		streetViewControl: false,
+		minZoom: 17, // Minimum zoom level
+		maxZoom: 20, // Maximum zoom level
+	});
 
-  // Markers data: Name, Latitude, Longitude, Image URL, Scaled Size (width, height)
-  const markers = [
-    ["Yoshi's House", 34.66669734177897, 135.4309054875526, 'yoshi_house.svg', 38, 31, 'Yoshi'], // Added 'Yoshi' tag
-    ['You Are Here', 34.66767112713121, 135.4297887322531, 'pointer.svg', 30, 47.8, 'YouAreHere'], 
-    ['Ghost House', 34.66832715150856, 135.43292762674864, 'ghosthouse.svg', 40, 48, 'GhostHouse'],
-    ['Castle', 34.66775608022106, 135.43139547897843, 'castle.svg', 40, 53, 'Castle'],
-    ['Warp Pipe', 34.66739738878135, 135.43225049775214, 'pipe.svg', 38, 42.5, 'WarpPipe'],
-    ['Star World', 34.667959023359266, 135.42866400953733, 'star.svg', 38, 38, 'StarWorld'],
-    ['Donut Plains', 34.66830355359945, 135.4320565322381, 'hill_with_eyes.svg', 50, 60.7, 'DonutPlains1'],
-    ['Donut Plains', 34.66829411443392, 135.43231361996433, 'hill_with_eyes.svg', 50, 60.7, 'DonutPlains2'],
-    ['Donut Plains', 34.6683781779677, 135.43217016043528, 'hill_with_eyes.svg', 50, 60.7, 'DonutPlains3'],
-  ];
+	// -27.147997334974797, -48.5923410773642
 
-  // Loop over markers array to create markers on the map
-  for (let i = 0; i < markers.length; i++) {
-    const currMarker = markers[i];
+	// Markers data: Name, Latitude, Longitude, Image URL, Scaled Size (width, height), ShowTag, PanoramaToShow
+	const markers = [
+		["Monaco", -27.147997334974797, -48.5923410773642, 'MonacoGeo.png', 100, 160, 'M_Monaco', 'MonacoEsquinaDir']
+	];
 
-    const marker = new google.maps.Marker({
-      position: { lat: currMarker[1], lng: currMarker[2] },
-      map,
-      title: currMarker[0],
-      icon: {
-        url: currMarker[3],
-        scaledSize: new google.maps.Size(currMarker[4], currMarker[5]),
-      },
-      animation: google.maps.Animation.DROP,
-    });
+	// Loop over markers array to create markers on the map
+	for (let i = 0; i < markers.length; i++) {
+		const currMarker = markers[i];
 
-    const infowindow = new google.maps.InfoWindow({
-      content: currMarker[0],
-    });
+		const marker = new google.maps.Marker({
+			position: { lat: currMarker[1], lng: currMarker[2] },
+			map,
+			title: currMarker[0],
+			icon: {
+				url: currMarker[3],
+				scaledSize: new google.maps.Size(currMarker[4], currMarker[5]),
+			},
+			animation: google.maps.Animation.DROP,
+		});
 
-    // Add click event listener for the marker
-    marker.addListener('click', () => {
-      // Open info window
-      infowindow.open(map, marker);
-      
-      // Update the URL hash when the marker is clicked
-      const tag = currMarker[6]; // This is the tag (e.g., 'Yoshi')
-      var hashValue = window.location.hash = 'hide-components-tags=' + tag;
-      
-      // Send the tag to the parent window to modify its header (3DVista)
-      window.parent.postMessage({ action: 'update-header', hash: hashValue }, '*');
-      
-    });
-  }
+		const infowindow = new google.maps.InfoWindow({
+			content: currMarker[0],
+		});
+
+		// Add click event listener for the marker
+		marker.addListener('click', () => {
+			// Open info window
+			// infowindow.open(map, marker);
+
+			// Define buttons that will be shown and hidden
+			const MapContainer = "MapHolder";
+
+
+			let showTag = ""; // Initialize showTag as empty
+			let panorama = ""; // Initialize panorama to show
+			let hashValue = `hide-components-tags=${MapContainer}`; // Default hash value for hiding
+
+			// Check if showTag exists and update hashValue
+			if (currMarker[7] !== undefined && currMarker[7] !== null && currMarker[7] !== "") {
+				showTag = currMarker[6]; // Get the show tag
+				panorama = currMarker[7];
+
+				// Update the hash
+				hashValue = `hide-components-tags=${MapContainer}&show-components-tags=${showTag}&media-name=${panorama}`;
+			}
+
+			// Construct the new hash
+			window.location.hash = hashValue;
+
+			// Send the hash to the parent to modify its header
+			window.parent.postMessage({ action: 'update-header', hash: hashValue }, '*');
+
+		});
+	}
 }
